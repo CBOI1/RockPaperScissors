@@ -1,6 +1,9 @@
 const ROCK = "rock";
 const PAPER = "paper";
 const SCISSORS = "scissors";
+const SCORE_TO_WIN = 5;
+let humanScore = 0;
+let computerScore = 0;
 
 function getComputerChoice() {
     const num = Math.floor(Math.random() * 3);
@@ -36,38 +39,50 @@ function encodeChoice(choice) {
 }
 
 
+let buttons = document.querySelectorAll("button")
+buttons.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+        playRound(e.target.value);
+    })
+})
 
-function playGame() {
-    let humanScore = 0;
-    let computerScore = 0;
-    function playRound() {
-        let compChoice = getComputerChoice();
-        let userChoice = getHumanChoice();
-        let userEncoded = encodeChoice(userChoice);
-        let compEncoded = encodeChoice(compChoice);
-        if (userEncoded === compEncoded) {
-            console.log(`Tie! Both selected ${compChoice}`)
-        } else if (userEncoded + 1 === compEncoded || userEncoded % 2 === compEncoded) {
-            computerScore += 1;
-            console.log(`Round loss! ${compChoice} beats ${userChoice}`);
-        } else {
-            humanScore += 1;
-            console.log(`Round won! ${userChoice} beats ${compChoice}`);
-        }
-        console.log(`User Score: ${humanScore}`);
-        console.log(`CPU Score: ${computerScore}`);
-    }
-    const numRounds = 5;
-    for(let i = 0; i < numRounds; i++) {
-        playRound();
-    }
-    if (humanScore > computerScore) {
-        console.log("Congrats you beat the CPU!");
-    } else if (computerScore < humanScore)  {
-        console.log("Better luck nect time.");
+let roundResultDiv = document.querySelector(".round-results");
+
+function determineWinner(para) {
+    if (computerScore == SCORE_TO_WIN) {
+        para.textContent = "CPU Wins!";
+        computerScore = 0;
+        humanScore = 0;
+    } else if (humanScore == SCORE_TO_WIN) {
+        para.textContent = "User wins!"
+        computerScore = 0;
+        humanScore = 0;
     } else {
-        console.log("Tie game.")
+        para.textContent = "";
     }
 }
 
-playGame();
+function playRound(playerSelection) {
+    let compChoice = getComputerChoice();
+    let userChoice = playerSelection
+    let userEncoded = encodeChoice(userChoice);
+    let compEncoded = encodeChoice(compChoice);
+    let winnerPara = roundResultDiv.firstChild;
+    if (userEncoded === compEncoded) {
+        winnerPara.textContent = `Tie! Both selected ${compChoice}`;
+    } else if (userEncoded + 1 === compEncoded || userEncoded % 2 === compEncoded) {
+        computerScore += 1;
+        winnerPara.textContent = `Round loss! ${compChoice} beats ${userChoice}`;
+    } else {
+        humanScore += 1;
+        winnerPara.textContent = `Round won! ${userChoice} beats ${compChoice}`;
+    }
+    let userScorePara = winnerPara.nextSibling;
+    let compScorePara = userScorePara.nextSibling;
+
+    userScorePara.textContent = `User Score: ${humanScore}`;
+    compScorePara.textContent = `CPU Score: ${computerScore}`;
+
+    determineWinner(compScorePara.nextSibling);
+
+}
